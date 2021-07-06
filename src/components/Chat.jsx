@@ -3,6 +3,8 @@ import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ChatIcon from "@material-ui/icons/Chat";
 import { Button, Drawer, Input } from "@material-ui/core";
 
+import "../assets/styles/chat.css";
+
 const useStyles = () => ({});
 
 function Chat(props) {
@@ -31,18 +33,17 @@ function Chat(props) {
 
   return (
     <>
-      <Drawer open={props.chatToggle} anchor='right'>
-        <h1>Hola desde el chat</h1>
-        <div>
-          <div>
+      <Drawer className="chat-drawer" open={props.chatToggle} anchor={'right'} onClose={props.closeDrawer}>
+        <div className="chat-head-wrapper">
+          <div className="chat-drawer-back-icon" onClick={props.closeDrawer}>
             <ChevronRightIcon />
           </div>
-          <div>
+          <div className="chat-header">
             <ChatIcon />
-            <h3>Chat</h3>
+            <h3 className="char-header-text">Chat</h3>
           </div>
         </div>
-        <div>
+        <div className="chat-drawer-list">
           {props.messages?.map((chatDetails) => {
             const { userData, message } = chatDetails;
             return (
