@@ -5,7 +5,7 @@ import Peer from "simple-peer";
 const SocketContext = createContext();
 
 // const socket = io('http://localhost:5000');
-const socket = io('https://video-room-api.herokuapp.com/');
+const socket = io("https://video-room-api.herokuapp.com/");
 
 const ContextProvider = ({ children }) => {
   const [callAccepted, setCallAccepted] = useState(false);
@@ -14,10 +14,14 @@ const ContextProvider = ({ children }) => {
   const [name, setName] = useState("");
   const [call, setCall] = useState({});
   const [me, setMe] = useState("");
+  const [message, setMessage] = useState("");
+  const [chat, setChat] = useState([]);
+  const [roomId, setRoomId] = useState("");
 
   const myVideo = useRef();
   const userVideo = useRef();
   const connectionRef = useRef();
+  let messages = [];
 
   useEffect(() => {
     navigator.mediaDevices
@@ -50,10 +54,36 @@ const ContextProvider = ({ children }) => {
 
     peer.signal(call.signal);
 
+    socket.on("new-broadcast-messsage", (data) => {
+      messages.push(data);
+      setChat(messages);
+      console.log("mensaje recivido", data);
+    });
+
     connectionRef.current = peer;
   };
 
+  const broadcastMessage = async (message) => {
+    const sendMessage = [
+      message,
+      {
+        idRoom: me,
+      },
+    ];
+    messages.push(message);
+    console.log("mensaje a emitir", sendMessage);
+    socket.emit("broadcast-message", sendMessage);
+  };
+
+  const reciveMessage = () => {
+    socket.on("new-broadcast-messsage", (data) => {
+      message.push(data);
+      console.log("mensaje recivido", data);
+    });
+  };
+
   const callUser = (id) => {
+    setRoomId(id);
     const peer = new Peer({ initiator: true, trickle: false, stream });
 
     peer.on("signal", (data) => {
@@ -73,6 +103,12 @@ const ContextProvider = ({ children }) => {
       setCallAccepted(true);
 
       peer.signal(signal);
+    });
+
+    socket.on("new-broadcast-messsage", (data) => {
+      messages.push(data);
+      setChat(messages);
+      console.log("mensaje recivido", data);
     });
 
     connectionRef.current = peer;
@@ -98,7 +134,11 @@ const ContextProvider = ({ children }) => {
         setName,
         callEnded,
         me,
+        chat,
         callUser,
+        broadcastMessage,
+        reciveMessage,
+        setMessage,
         leaveCall,
         answerCall,
       }}>

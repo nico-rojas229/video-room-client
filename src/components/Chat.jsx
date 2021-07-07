@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ChatIcon from "@material-ui/icons/Chat";
 import { Button, Drawer, Input } from "@material-ui/core";
+import { SocketContext } from "../Context";
+import { socket } from "../Context";
 
 import "../assets/styles/chat.css";
 
@@ -9,6 +11,8 @@ const useStyles = () => ({});
 
 function Chat(props) {
   const [chatText, setChatText] = useState("");
+  const { broadcastMessage, reciveMessage, setMessage, chat } =
+    useContext(SocketContext);
 
   const handleChatText = (event) => {
     const { value } = event.target;
@@ -16,8 +20,9 @@ function Chat(props) {
   };
 
   const handleSendText = (event) => {
+    console.log("entro aqui", [event, chatText, props]);
     if (!(chatText.length > 0)) return;
-    if ((event.type === "keyup") !== "Enter") {
+    if (event.type === "keyup" && event.key !== "Enter") {
       return;
     }
     const messageDetails = {
@@ -27,36 +32,36 @@ function Chat(props) {
       },
       userData: { ...props.myDetails },
     };
-    props.socketInstance.boradcastMessage(messageDetails);
+    console.log(messageDetails);
+    broadcastMessage(messageDetails);
+    console.log("mensaje desde el chat", props.chat);
     setChatText("");
   };
 
   return (
     <>
-      <Drawer className="chat-drawer" open={props.chatToggle} anchor={'right'} onClose={props.closeDrawer}>
-        <div className="chat-head-wrapper">
-          <div className="chat-drawer-back-icon" onClick={props.closeDrawer}>
+      <Drawer
+        className='chat-drawer'
+        open={props.chatToggle}
+        anchor={"right"}
+        onClose={props.closeDrawer}>
+        <div className='chat-head-wrapper'>
+          <div className='chat-drawer-back-icon' onClick={props.closeDrawer}>
             <ChevronRightIcon />
           </div>
-          <div className="chat-header">
+          <div className='chat-header'>
             <ChatIcon />
-            <h3 className="char-header-text">Chat</h3>
+            <h3 className='char-header-text'>Chat</h3>
           </div>
         </div>
-        <div className="chat-drawer-list">
-          {props.messages?.map((chatDetails) => {
+        <div className='chat-drawer-list'>
+          {props.chat?.map((chatDetails) => {
+            console.log("cjat details", chat);
             const { userData, message } = chatDetails;
             return (
               <div className='message-container'>
-                <div
-                  className={`message-wrapper ${
-                    !userData.userID ? "message-wrapper-right" : ""
-                  }`}>
-                  <div className='message-title-wrapper'>
-                    <h5 className='message-name'>{userData?.name}</h5>
-                    <span className='message-timestamp'></span>
-                  </div>
-                  <p className='actual-message'>{message.message}</p>
+                <div className='message-wrapper'>
+                  <p className='actual-message'>{message}</p>
                 </div>
               </div>
             );

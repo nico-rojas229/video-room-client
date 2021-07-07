@@ -46,14 +46,23 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Sidebar = ({ children }) => {
-  const { me, callAccepted, name, setName, callEnded, leaveCall, callUser } =
-    useContext(SocketContext);
+  const {
+    me,
+    callAccepted,
+    name,
+    setName,
+    callEnded,
+    leaveCall,
+    callUser,
+    chat,
+  } = useContext(SocketContext);
   const [idToCall, setIdToCall] = useState("");
   const classes = useStyles();
   const [chatToggle, setChatToggle] = useState(false);
 
   const chatHandle = (bool = false) => {
     setChatToggle(bool);
+    console.log("AQUIIIIIIIIIIII", children);
   };
 
   return (
@@ -138,7 +147,11 @@ const Sidebar = ({ children }) => {
         </form>
         {children}
       </Paper>
-      <Chat chatToggle={chatToggle} closeDrawer={() => chatHandle(false)} />
+      <Chat
+        chat={chat}
+        chatToggle={chatToggle}
+        closeDrawer={() => chatHandle(false)}
+      />
     </Container>
   );
 };
